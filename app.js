@@ -58,6 +58,12 @@ app.get('/users/:id', async (req, res) => {
 
 app.post('/users', async (req, res) => {
   const { name, email } = req.body;
+  
+  // Verificar si se proporcionaron tanto el nombre como el correo electrónico del usuario
+  if (!name || !email) {
+    return res.status(400).json({ error: 'El nombre y el correo electrónico del usuario son obligatorios.' });
+  }
+  
   const id = faker.datatype.uuid();
   try {
     const client = await pool.connect();
