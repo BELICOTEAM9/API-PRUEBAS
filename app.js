@@ -3,74 +3,90 @@ const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
-// Configuración de la conexión a PostgreSQL
+// Middleware para parsear JSON y urlencoded
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Configuración de la base de datos PostgreSQL
 const pool = new Pool({
   user: 'postgres',
-  host: 'db', // Cambia esto por la dirección de tu base de datos PostgreSQL
+  host: 'db',
   database: 'postgres',
   password: 'postgres',
   port: 5432,
 });
 
-app.use(bodyParser.json());
-
-// Rutas
+// Endpoint para obtener todos los usuarios
 app.get('/users', async (req, res) => {
   try {
-    const client = await pool.connect();
-    const result = await client.query('SELECT * FROM users');
-    const users = result.rows;
-    res.status(200).json(users);
-    client.release();
+    const { rows } = await pool.query('SELECT * FROM users');
+    res.status(200).json(rows);
   } catch (error) {
     console.error('Error al obtener usuarios', error);
-    res.status(500).json({ error: 'Error al obtener usuarios' });
+    res.status(500).send('Error interno del servidor');
   }
 });
 
+// Endpoint para obtener detalle de usuario por ID
 app.get('/users/:id', async (req, res) => {
-  const { id } = req.params;
+  const userId = parseInt(req.params.id);
   try {
-    const client = await pool.connect();
-    const result = await client.query('SELECT * FROM users WHERE id = $1', [id]);
-    const user = result.rows[0];
-    if (user) {
-      res.status(200).json(user);
+    const { rows } = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
+    if (rows.length === 0) {
+      res.status(404).send('User not found');
     } else {
-      res.status(404).json({ error: 'Usuario no encontrado' });
+      res.status(200).json(rows[0]);
     }
-    client.release();
   } catch (error) {
-    console.error('Error al obtener usuario', error);
-    res.status(500).json({ error: 'Error al obtener usuario' });
+    console.error('Error al obtener detalle de usuario', error);
+    res.status(500).send('Error interno del servidor');
   }
 });
 
+// Endpoint para crear usuario
 app.post('/users', async (req, res) => {
   const { name, email } = req.body;
-  
-  // Verificar si se proporcionaron tanto el nombre como el correo electrónico del usuario
-  if (!name || !email) {
-    return res.status(400).json({ error: 'El nombre y el correo electrónico del usuario son obligatorios.' });
-  }
-  
   try {
-    const client = await pool.connect();
-    const result = await client.query('INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *', [name, email]);
-    const newUser = result.rows[0];
-    res.status(201).json(newUser);
-    client.release();
+    const { rows } = await pool.query('INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *', [name, email]);
+    res.status(201).json(rows[0]);
   } catch (error) {
     console.error('Error al crear usuario', error);
-    res.status(500).json({ error: 'Error al crear usuario' });
+    res.status(500).send('Error interno del servidor');
   }
 });
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`Servidor escuchando en el puerto ${PORT}`);
+// Endpoint para eliminar usuario por ID
+app.delete('/users/:id', async (req, res) => {
+  const userId = parseInt(req.params.id);
+  try {
+    await pool.query('DELETE FROM users WHERE id = $1', [userId]);
+    res.status(200).send('User deleted successfully');
+  } catch (error) {
+    console.error('Error al eliminar usuario', error);
+    res.status(500).send('Error interno del servidor');
+  }
 });
 
-module.exports = app;
+// Endpoint para actualizar usuario por ID
+app.put('/users/:id', async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const { name, email } = req.body;
+  try {
+    const { rowCount } = await pool.query('UPDATE users SET name = $1, email = $2 WHERE id = $3', [name, email, userId]);
+    if (rowCount === 0) {
+      res.status(404).send('User not found');
+    } else {
+      res.status(200).send('User updated successfully');
+    }
+  } catch (error) {
+    console.error('Error al actualizar usuario', error);
+    res.status(500).send('Error interno del servidor');
+  }
+});
+
+// Iniciar el servidor
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
+});
