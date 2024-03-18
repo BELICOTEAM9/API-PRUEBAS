@@ -2,7 +2,7 @@
 	"name": "Node.js & PostgreSQL",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "app",
-	"workspaceFolder": "/workspaces/Pruebas",
+	"workspaceFolder": "/workspaces/PruebasIntegracion",
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},

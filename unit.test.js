@@ -5,8 +5,8 @@ const faker = require('faker');
 describe('Pruebas unitarias', () => {
   it('POST /users debería crear un usuario y devolver el usuario creado', async () => {
     const newUser = {
-      name: 'cesar',
-      email: 'cesar@utsc.com',
+      name: 'Luis',
+      email: 'luis@utsc.com',
     };
     const response = await request(app)
       .post('/users')
