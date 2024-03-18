@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { Pool } = require('pg');
-const faker = require('faker');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,20 +8,13 @@ const PORT = process.env.PORT || 3000;
 // Configuración de la conexión a PostgreSQL
 const pool = new Pool({
   user: 'postgres',
-  host: 'db', 
+  host: 'localhost', // Cambia esto por la dirección de tu base de datos PostgreSQL
   database: 'postgres',
   password: 'postgres',
   port: 5432,
 });
 
 app.use(bodyParser.json());
-
-// Mock de usuarios
-const mockUsers = Array.from({ length: 10 }, () => ({
-  id: faker.datatype.uuid(),
-  name: faker.name.firstName(),
-  email: faker.internet.email(),
-}));
 
 // Rutas
 app.get('/users', async (req, res) => {
@@ -64,10 +56,9 @@ app.post('/users', async (req, res) => {
     return res.status(400).json({ error: 'El nombre y el correo electrónico del usuario son obligatorios.' });
   }
   
-  const id = faker.datatype.uuid();
   try {
     const client = await pool.connect();
-    const result = await client.query('INSERT INTO users (id, name, email) VALUES ($1, $2, $3) RETURNING *', [id, name, email]);
+    const result = await client.query('INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *', [name, email]);
     const newUser = result.rows[0];
     res.status(201).json(newUser);
     client.release();
@@ -76,8 +67,6 @@ app.post('/users', async (req, res) => {
     res.status(500).json({ error: 'Error al crear usuario' });
   }
 });
-
-
 
 // Iniciar servidor
 app.listen(PORT, () => {
