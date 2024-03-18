@@ -6,13 +6,13 @@ const app = express();
 const PORT = 3001;
 
 // Configuración de la base de datos PostgreSQL
-const pool = new Pool({
-  user: 'postgres',
-  host: 'db',
-  database: 'postgres',
-  password: 'postgres',
-  port: 5432,
-});
+  const pool = new Pool({
+    user: 'postgres',
+    host: 'db',
+    database: 'postgres',
+    password: 'postgres',
+    port: 5432,
+  });
 
 // Middleware para manejar errores
 app.use((err, req, res, next) => {
