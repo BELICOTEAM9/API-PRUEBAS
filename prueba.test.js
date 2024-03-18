@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('./server');
+const app = require('./app');
 
 describe('Pruebas del servidor Express', () => {
   test('El servidor debe responder en el puerto 3000', async () => {
