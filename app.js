@@ -1,8 +1,28 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const { Pool } = require('pg');
+
+const app = express();
+const PORT = 3001;
+
+// Configuración de la base de datos PostgreSQL
+const pool = new Pool({
+  user: 'postgres',
+  host: 'db',
+  database: 'postgres',
+  password: 'postgres',
+  port: 5432,
+});
+
 // Middleware para manejar errores
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Error interno del servidor' });
 });
+
+// Middleware para parsear JSON y urlencoded
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Endpoint para obtener todos los usuarios
 app.get('/users', async (req, res) => {
@@ -70,10 +90,9 @@ app.put('/users/:id', async (req, res) => {
     console.error('Error al actualizar usuario', error);
     res.status(500).json({ error: 'Error al actualizar usuario' });
   }
-  
 });
 
-// Agregar usuario "Luis" con email "luis@utsc.com"
+// Agregar usuario 
 app.post('/addUser', async (req, res) => {
   const { name, email } = req.body;
   try {
@@ -86,6 +105,8 @@ app.post('/addUser', async (req, res) => {
 });
 
 // Iniciar el servidor
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
+
+module.exports = app; // Exportar la variable app
