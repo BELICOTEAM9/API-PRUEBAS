@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 
 const app = express();
-const PORT = 3000;
+const PORT = 3001;
 
 // Middleware para parsear JSON y urlencoded
 app.use(bodyParser.json());
@@ -84,6 +84,7 @@ app.put('/users/:id', async (req, res) => {
     console.error('Error al actualizar usuario', error);
     res.status(500).send('Error interno del servidor');
   }
+  
 });
 
 // Iniciar el servidor
