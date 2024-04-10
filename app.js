@@ -19,11 +19,11 @@ const pool = new Pool({
 
 // Ruta para la ruta raíz "/"
 app.get('/', (req, res) => {
-  res.send('¡Bienvenido a mi aplicación Express!');
+  res.send('¡Servidor Funcionado!');
 });
 
 // Middleware para manejar errores
-app.use((err, req, res, next) => {
+app.use((err, req, res, next) => {a
   console.error(err.stack);
   res.status(500).json({ error: 'Error interno del servidor' });
 });

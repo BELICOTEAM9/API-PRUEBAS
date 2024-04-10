@@ -14,7 +14,7 @@ describe('Pruebas de integración del servidor Express', () => {
 
   // Prueba para obtener el detalle de un usuario por ID
   test('Obtener detalle de un usuario por ID', async () => {
-    const userId = 2;
+    const userId = 5;
     const response = await request.get(`/users/${userId}`);
     expect(response.statusCode).toBe(200);
     expect(response.body.id).toBe(userId);
@@ -32,7 +32,7 @@ describe('Pruebas de integración del servidor Express', () => {
 
   // Prueba para actualizar un usuario existente
   test('Actualizar un usuario existente', async () => {
-    const userId = 3;
+    const userId = 8;
     const updatedUser = { name: 'Pedro', email: 'pedro@example.com' };
     const response = await request.put(`/users/${userId}`).send(updatedUser);
     expect(response.statusCode).toBe(200);
@@ -42,10 +42,35 @@ describe('Pruebas de integración del servidor Express', () => {
 
   // Prueba para eliminar un usuario existente
   test('Eliminar un usuario existente', async () => {
-    const userId = 6;
+    const userId = 4;
     const response = await request.delete(`/users/${userId}`);
     expect(response.statusCode).toBe(200);
     expect(response.body).toHaveProperty('message', 'Usuario eliminado exitosamente');
     console.log(`DELETE /users/${userId} - Estado:`, response.statusCode);
   });
+});
+
+// Prueba para verificar que no se puede obtener el detalle de un usuario que no existe
+test('No se puede obtener detalle de un usuario que no existe', async () => {
+  const userId = 999; 
+  const response = await request.get(`/users/${userId}`);
+  expect(response.statusCode).toBe(404); 
+  console.log(`GET /users/${userId} - Estado:`, response.statusCode);
+});
+
+// Prueba para verificar que no se puede actualizar un usuario que no existe por ID
+test('No se puede actualizar un usuario que no existe por ID', async () => {
+  const userId = 999; 
+  const updatedUserData = { name: 'Nuevo nombre', email: 'nuevo@email.com' };
+  const response = await request.put(`/users/${userId}`).send(updatedUserData);
+  expect(response.statusCode).toBe(404); 
+  console.log(`PUT /users/${userId} - Estado:`, response.statusCode);
+});
+
+// Prueba para verificar que no se puede eliminar un usuario que no existe
+test('No se puede eliminar un usuario que no existe', async () => {
+  const userId = 999; 
+  const response = await request.delete(`/users/${userId}`);
+  expect(response.statusCode).toBe(404); 
+  console.log(`DELETE /users/${userId} - Estado:`, response.statusCode);
 });
